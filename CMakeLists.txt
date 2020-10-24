@@ -4,15 +4,17 @@ SET(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.7)
 
 # specify cross compilers and tools
+set(TOOLCHAIN_DIR D:/Toolchains/arm-none-v7/bin)
+set(TOOLCHAIN_SUFFIX .exe)
 SET(CMAKE_C_COMPILER_WORKS 1)
-SET(CMAKE_C_COMPILER arm-none-eabi-gcc)
+SET(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/arm-none-eabi-gcc${TOOLCHAIN_SUFFIX})
 SET(CMAKE_CXX_COMPILER_WORKS 1)
-SET(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
-set(CMAKE_AR arm-none-eabi-ar)
-set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP arm-none-eabi-objdump)
-set(SIZE arm-none-eabi-size)
+SET(CMAKE_CXX_COMPILER ${TOOLCHAIN_DIR}/arm-none-eabi-g++${TOOLCHAIN_SUFFIX})
+set(CMAKE_ASM_COMPILER ${TOOLCHAIN_DIR}/arm-none-eabi-gcc${TOOLCHAIN_SUFFIX})
+set(CMAKE_AR ${TOOLCHAIN_DIR}/arm-none-eabi-ar${TOOLCHAIN_SUFFIX})
+set(CMAKE_OBJCOPY ${TOOLCHAIN_DIR}/arm-none-eabi-objcopy${TOOLCHAIN_SUFFIX})
+set(CMAKE_OBJDUMP ${TOOLCHAIN_DIR}/arm-none-eabi-objdump${TOOLCHAIN_SUFFIX})
+set(SIZE ${TOOLCHAIN_DIR}/arm-none-eabi-size${TOOLCHAIN_SUFFIX})
 
 SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32G431RBTX_FLASH.ld)
 
@@ -34,7 +36,6 @@ SET(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-gc-sections,--print-memory-usage -T ${LINK
 PROJECT(LoraG431 C CXX ASM)
 set(CMAKE_CXX_STANDARD 11)
 
-#add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1)
 add_definitions(-DUSE_BAND_868 -DSTM32G431xx -DUSE_HAL_DRIVER -DUSE_I_NUCLEO_LRWAN1 -DUSE_NUCLEO_64 -DDEBUG)
 
 file(GLOB_RECURSE SOURCES "Core/*.*" "Drivers/*.*")

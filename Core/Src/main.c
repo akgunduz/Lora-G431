@@ -53,6 +53,8 @@
 #define JOIN_MODE                  OTAA_JOIN_MODE   /*ABP_JOIN_MODE */ /*LoRaWan join methode*/
 
 #define PULSE_COUNTER_COUNT 		1
+#define PULSE_COEF                  4
+#define PULSE_MINUTE                60
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -65,6 +67,7 @@
 /* USER CODE BEGIN PV */
 
 uint16_t pulse[PULSE_COUNTER_COUNT];
+uint16_t calibrated_pulse[PULSE_COUNTER_COUNT];
 
 TIM_HandleTypeDef *hPulseCycleTimer; //1sn
 TIM_HandleTypeDef *hPulseCounter[PULSE_COUNTER_COUNT];
@@ -146,17 +149,17 @@ int main(void)
   hADC2Timer = &htim2;
 
   /* Context Initialization following the LoRa device modem Used*/
-  Lora_Ctx_Init(&LoRaDriverCallbacks, &LoRaDriverParam);
+  //Lora_Ctx_Init(&LoRaDriverCallbacks, &LoRaDriverParam);
 
   BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
-
+/*
   if (SensorDevicesInit() != COMPONENT_OK) {
   	printf("Sensors can not initialized! \r\n");
 
   } else {
 	  printf("Sensors initialized! \r\n");
   }
-
+*/
   if (AnalogDevicesInit() != COMPONENT_OK) {
   	printf("ADCs can not initialized! \r\n");
 
@@ -181,7 +184,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    Lora_fsm();
+    //Lora_fsm();
   }
   /* USER CODE END 3 */
 }
@@ -196,10 +199,10 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage
   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -215,7 +218,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -228,7 +231,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the peripherals clocks 
+  /** Initializes the peripherals clocks
   */
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_LPUART1
                               |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_ADC12;
@@ -261,6 +264,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			pulse[i] = __HAL_TIM_GetCounter(hPulseCounter[i]);
 			HAL_TIM_GenerateEvent(hPulseCounter[i], TIM_EVENTSOURCE_UPDATE);
 			HAL_TIM_Base_Start(hPulseCounter[i]);
+			calibrated_pulse[i] = pulse[i] * (PULSE_MINUTE / PULSE_COEF);
 		}
 
 		return;
@@ -282,7 +286,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		} else {
 
 			printf("Collected analog data :  adc1[0] = %d, adc1[1] = %d, adc2[0] = %d \r\n",
-			adc1[0], adc1[1], adc2[0] );
+			processed_adc1[0], processed_adc1[1], processed_adc2[0] );
 		}
 		return;
 	} 
@@ -344,7 +348,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

@@ -61,22 +61,50 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BLUE_BTN_Pin GPIO_PIN_13
 #define BLUE_BTN_GPIO_Port GPIOC
+#define SICAKLIK_2_Pin GPIO_PIN_0
+#define SICAKLIK_2_GPIO_Port GPIOC
+#define SICAKLIK_3_Pin GPIO_PIN_1
+#define SICAKLIK_3_GPIO_Port GPIOC
+#define RSIC_2_Pin GPIO_PIN_2
+#define RSIC_2_GPIO_Port GPIOC
+#define AUX_1_Pin GPIO_PIN_3
+#define AUX_1_GPIO_Port GPIOC
 #define LORA_LED_Pin GPIO_PIN_0
 #define LORA_LED_GPIO_Port GPIOA
+#define MIK_1_Pin GPIO_PIN_1
+#define MIK_1_GPIO_Port GPIOA
 #define DEBUG_UART_TX_Pin GPIO_PIN_2
 #define DEBUG_UART_TX_GPIO_Port GPIOA
 #define DEBUG_UART_RX_Pin GPIO_PIN_3
 #define DEBUG_UART_RX_GPIO_Port GPIOA
+#define AUX_4_Pin GPIO_PIN_4
+#define AUX_4_GPIO_Port GPIOA
 #define NUCLEO_LED_Pin GPIO_PIN_5
 #define NUCLEO_LED_GPIO_Port GPIOA
+#define MIK_2_Pin GPIO_PIN_6
+#define MIK_2_GPIO_Port GPIOA
+#define RSIC_1_Pin GPIO_PIN_7
+#define RSIC_1_GPIO_Port GPIOA
 #define LORA_UART_TX_Pin GPIO_PIN_4
 #define LORA_UART_TX_GPIO_Port GPIOC
 #define LORA_UART_RX_Pin GPIO_PIN_5
 #define LORA_UART_RX_GPIO_Port GPIOC
+#define AKIM_3_Pin GPIO_PIN_0
+#define AKIM_3_GPIO_Port GPIOB
+#define AKIM_2_Pin GPIO_PIN_1
+#define AKIM_2_GPIO_Port GPIOB
 #define OUTPUT_3_Pin GPIO_PIN_2
 #define OUTPUT_3_GPIO_Port GPIOB
+#define AUX_2_Pin GPIO_PIN_11
+#define AUX_2_GPIO_Port GPIOB
+#define AKIM_1_Pin GPIO_PIN_12
+#define AKIM_1_GPIO_Port GPIOB
 #define OUTPUT_1_Pin GPIO_PIN_13
 #define OUTPUT_1_GPIO_Port GPIOB
+#define SICAKLIK_1_Pin GPIO_PIN_14
+#define SICAKLIK_1_GPIO_Port GPIOB
+#define AUX_3_Pin GPIO_PIN_15
+#define AUX_3_GPIO_Port GPIOB
 #define OUTPUT_11_Pin GPIO_PIN_6
 #define OUTPUT_11_GPIO_Port GPIOC
 #define OUTPUT_10_Pin GPIO_PIN_7
@@ -99,6 +127,8 @@ void Error_Handler(void);
 #define T_SWCLK_GPIO_Port GPIOA
 #define OUTPUT_9_Pin GPIO_PIN_12
 #define OUTPUT_9_GPIO_Port GPIOC
+#define DEVIR_Pin GPIO_PIN_2
+#define DEVIR_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
