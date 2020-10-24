@@ -37,13 +37,13 @@ extern ADC_HandleTypeDef hadc2;
 
 /* USER CODE BEGIN Private defines */
 
-extern uint16_t adc1[4];
+extern uint16_t adc1[6];
 extern uint16_t adc2[8];
 
-extern uint16_t calibrated_adc1[4];
+extern uint16_t calibrated_adc1[6];
 extern uint16_t calibrated_adc2[8];
 
-extern uint16_t processed_adc1[4];
+extern uint16_t processed_adc1[6];
 extern uint16_t processed_adc2[8];
 
 extern TIM_HandleTypeDef *hADC1Timer;
