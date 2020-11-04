@@ -149,19 +149,19 @@ int main(void)
   hADC2Timer = &htim2;
 
   /* Context Initialization following the LoRa device modem Used*/
-  //Lora_Ctx_Init(&LoRaDriverCallbacks, &LoRaDriverParam);
+  Lora_Ctx_Init(&LoRaDriverCallbacks, &LoRaDriverParam);
 
   BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
-/*
+
   if (SensorDevicesInit() != COMPONENT_OK) {
-  	printf("Sensors can not initialized! \r\n");
+	  printf("Sensors can not initialized! \r\n");
 
   } else {
 	  printf("Sensors initialized! \r\n");
   }
-*/
+
   if (AnalogDevicesInit() != COMPONENT_OK) {
-  	printf("ADCs can not initialized! \r\n");
+	  printf("ADCs can not initialized! \r\n");
 
   } else {
 	  printf("ADCs initialized! \r\n");
@@ -184,7 +184,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    //Lora_fsm();
+    Lora_fsm();
   }
   /* USER CODE END 3 */
 }

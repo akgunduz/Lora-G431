@@ -3017,17 +3017,20 @@ DrvStatusTypeDef CollectSensorData() {
 
 	status = BSP_HUMIDITY_Get_Hum(hHUMIDITY, &HUMIDITY_Value);
 	if (status != COMPONENT_OK) {
-	  return status;
+		printf("Humidity Sensor can not initialized! \r\n");
+		return status;
 	}
 
 	status = BSP_TEMPERATURE_Get_Temp(hTEMPERATURE, &TEMPERATURE_Value);
 	if (status != COMPONENT_OK) {
-	  return status;
+		printf("Temperature Sensor can not initialized! \r\n");
+		return status;
 	}
 
 	status = BSP_PRESSURE_Get_Press(hPRESSURE, &PRESSURE_Value);
 	if (status != COMPONENT_OK) {
-	  return status;
+		printf("Pressure Sensor can not initialized! \r\n");
+		return status;
 	}
 
 	humidity    = (uint16_t)(HUMIDITY_Value * 2);            /* in %*2     */
