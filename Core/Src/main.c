@@ -46,6 +46,7 @@
 #define LPP_DATATYPE_TEMPERATURE 0x67
 #define LPP_DATATYPE_BAROMETER 0x73
 #define LPP_DATATYPE_ADC 0x74
+#define LPP_DATATYPE_PULSE 0x75
 
 #define LORAWAN_APP_PORT           99;            /*LoRaWAN application port*/
 #define LORAWAN_CONFIRMED_MSG      ENABLE         /*LoRaWAN confirmed messages*/
@@ -264,7 +265,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			pulse[i] = __HAL_TIM_GetCounter(hPulseCounter[i]);
 			HAL_TIM_GenerateEvent(hPulseCounter[i], TIM_EVENTSOURCE_UPDATE);
 			HAL_TIM_Base_Start(hPulseCounter[i]);
-			calibrated_pulse[i] = pulse[i] * (PULSE_MINUTE / PULSE_COEF);
+			//calibrated_pulse[i] = pulse[i] * (PULSE_MINUTE / PULSE_COEF);
+			calibrated_pulse[i] = 0x1250;
 		}
 
 		return;
@@ -309,8 +311,8 @@ static void PrepareSensorData(sSendDataBinary_t *SendDataBinary)
 	int index = 0;
 	uint8_t cchannel = 0;
 
-	SendDataBinary->Buffer[index++] = cchannel++;
-	SendDataBinary->Buffer[index++] = LPP_DATATYPE_BAROMETER;
+//	SendDataBinary->Buffer[index++] = cchannel++;
+/*	SendDataBinary->Buffer[index++] = LPP_DATATYPE_BAROMETER;
 	SendDataBinary->Buffer[index++] = (pressure >> 8) & 0xFF;
 	SendDataBinary->Buffer[index++] = pressure & 0xFF;
 	SendDataBinary->Buffer[index++] = cchannel++;
@@ -320,6 +322,39 @@ static void PrepareSensorData(sSendDataBinary_t *SendDataBinary)
 	SendDataBinary->Buffer[index++] = cchannel++;
 	SendDataBinary->Buffer[index++] = LPP_DATATYPE_HUMIDITY;
 	SendDataBinary->Buffer[index++] = humidity & 0xFF;
+*/
+	SendDataBinary->Buffer[index++] = LPP_DATATYPE_ADC;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[0] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[0] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[1] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[1] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[2] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[2] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[3] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[3] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[4] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[4] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc1[5] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc1[5] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[0] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[0] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[1] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[1] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[2] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[2] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[3] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[3] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[4] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[4] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[5] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[5] & 0xFF;
+	SendDataBinary->Buffer[index++] = (calibrated_adc2[6] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_adc2[6] & 0xFF;
+
+	SendDataBinary->Buffer[index++] = LPP_DATATYPE_PULSE;
+	SendDataBinary->Buffer[index++] = (calibrated_pulse[0] >> 8) & 0xFF;
+	SendDataBinary->Buffer[index++] = calibrated_pulse[0] & 0xFF;
+
 
 	SendDataBinary->DataSize = index;
 	SendDataBinary->Port = LORAWAN_APP_PORT;

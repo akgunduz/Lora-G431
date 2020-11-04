@@ -443,12 +443,13 @@ DrvStatusTypeDef CollectAnalogData()
 	DrvStatusTypeDef status = COMPONENT_OK;
 
 	for (int i = 0; i < 6; i++) {
-		calibrated_adc1[i] = adc1[i] / 8;
-//		processed_adc1[i] = (calibrated_adc1[i] - 150) / 10.56;
+		//calibrated_adc1[i] = adc1[i] / 8;
+		calibrated_adc1[i] = 0x11 + i;
 	}
 
 	for (int i = 0; i < 8; i++) {
-		calibrated_adc2[i] = adc2[i] / 8;
+		//calibrated_adc2[i] = adc2[i] / 8;
+		calibrated_adc2[i] = 0x33 + i;
 	}
 
 	return status;
