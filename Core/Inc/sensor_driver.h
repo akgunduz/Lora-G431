@@ -170,5 +170,6 @@ extern MAGNETO_Data_t MAGNETO_Data[ MAGNETO_SENSORS_MAX_NUM ]; // Magnetometer -
 extern uint16_t pressure;
 extern int16_t temperature;
 extern uint16_t humidity;
+extern uint16_t magneto;
 
 #endif /* INC_SENSOR_DRIVER_H_ */
