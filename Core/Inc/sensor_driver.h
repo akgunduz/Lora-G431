@@ -150,6 +150,39 @@ DrvStatusTypeDef BSP_MAGNETO_Read_Reg( void *handle, uint8_t reg, uint8_t *data 
 DrvStatusTypeDef BSP_MAGNETO_Write_Reg( void *handle, uint8_t reg, uint8_t data );
 DrvStatusTypeDef BSP_MAGNETO_Get_DRDY_Status( void *handle, uint8_t *status );
 
+typedef enum
+{
+  ACCELERO_SENSORS_AUTO = -1,    /* Always first element and equal to -1 */
+  LSM303AGR_X_0                  /* Default on board. */
+} ACCELERO_ID_t;
+
+#define ACCELERO_SENSORS_MAX_NUM 1
+
+/* Sensor Configuration Functions */
+DrvStatusTypeDef BSP_ACCELERO_Init( ACCELERO_ID_t id, void **handle );
+DrvStatusTypeDef BSP_ACCELERO_DeInit( void **handle );
+DrvStatusTypeDef BSP_ACCELERO_Sensor_Enable( void *handle );
+DrvStatusTypeDef BSP_ACCELERO_Sensor_Disable( void *handle );
+DrvStatusTypeDef BSP_ACCELERO_IsInitialized( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_ACCELERO_IsEnabled( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_ACCELERO_IsCombo( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_ACCELERO_Get_Instance( void *handle, uint8_t *instance );
+DrvStatusTypeDef BSP_ACCELERO_Get_WhoAmI( void *handle, uint8_t *who_am_i );
+DrvStatusTypeDef BSP_ACCELERO_Check_WhoAmI( void *handle );
+DrvStatusTypeDef BSP_ACCELERO_Get_Axes( void *handle, SensorAxes_t *acceleration );
+DrvStatusTypeDef BSP_ACCELERO_Get_AxesRaw( void *handle, SensorAxesRaw_t *value );
+DrvStatusTypeDef BSP_ACCELERO_Get_Sensitivity( void *handle, float *sensitivity );
+DrvStatusTypeDef BSP_ACCELERO_Get_ODR( void *handle, float *odr );
+DrvStatusTypeDef BSP_ACCELERO_Set_ODR( void *handle, SensorOdr_t odr );
+DrvStatusTypeDef BSP_ACCELERO_Set_ODR_Value( void *handle, float odr );
+DrvStatusTypeDef BSP_ACCELERO_Get_FS( void *handle, float *fullScale );
+DrvStatusTypeDef BSP_ACCELERO_Set_FS( void *handle, SensorFs_t fullScale );
+DrvStatusTypeDef BSP_ACCELERO_Set_FS_Value( void *handle, float fullScale );
+DrvStatusTypeDef BSP_ACCELERO_Get_Axes_Status( void *handle, uint8_t *xyz_enabled );
+DrvStatusTypeDef BSP_ACCELERO_Set_Axes_Status( void *handle, uint8_t *enable_xyz );
+DrvStatusTypeDef BSP_ACCELERO_Read_Reg( void *handle, uint8_t reg, uint8_t *data );
+DrvStatusTypeDef BSP_ACCELERO_Write_Reg( void *handle, uint8_t reg, uint8_t data );
+DrvStatusTypeDef BSP_ACCELERO_Get_DRDY_Status( void *handle, uint8_t *status );
 
 DrvStatusTypeDef SensorDevicesInit();
 DrvStatusTypeDef CollectSensorData();
@@ -166,10 +199,14 @@ extern PRESSURE_Data_t PRESSURE_Data[ PRESSURE_SENSORS_MAX_NUM ]; /* Pressure - 
 extern DrvContextTypeDef MAGNETO_SensorHandle[ MAGNETO_SENSORS_MAX_NUM ];
 extern MAGNETO_Data_t MAGNETO_Data[ MAGNETO_SENSORS_MAX_NUM ]; // Magnetometer - all.
 
+DrvContextTypeDef ACCELERO_SensorHandle[ ACCELERO_SENSORS_MAX_NUM ];
+ACCELERO_Data_t ACCELERO_Data[ ACCELERO_SENSORS_MAX_NUM ]; // Accelerometer - all.
 
 extern uint16_t pressure;
 extern int16_t temperature;
 extern uint16_t humidity;
 extern uint16_t magneto;
+extern uint16_t accelero;
+
 
 #endif /* INC_SENSOR_DRIVER_H_ */

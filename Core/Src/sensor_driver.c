@@ -45,16 +45,20 @@ PRESSURE_Data_t PRESSURE_Data[ PRESSURE_SENSORS_MAX_NUM ]; /* Pressure - all. */
 DrvContextTypeDef MAGNETO_SensorHandle[ MAGNETO_SENSORS_MAX_NUM ];
 MAGNETO_Data_t MAGNETO_Data[ MAGNETO_SENSORS_MAX_NUM ]; // Magnetometer - all.
 
+DrvContextTypeDef ACCELERO_SensorHandle[ ACCELERO_SENSORS_MAX_NUM ];
+ACCELERO_Data_t ACCELERO_Data[ ACCELERO_SENSORS_MAX_NUM ]; // Accelerometer - all.
 
 uint16_t pressure = 0;
 int16_t temperature = 0;
 uint16_t humidity = 0;
 uint16_t magneto = 0;
+uint16_t accelero = 0;
 
 void *hHUMIDITY = NULL;
 void *hTEMPERATURE = NULL;
 void *hPRESSURE = NULL;
 void *hMAGNETO = NULL;
+void *hACCELERO = NULL;
 
 /**
  * @brief Initialize a humidity sensor
@@ -3506,6 +3510,840 @@ DrvStatusTypeDef BSP_MAGNETO_Get_DRDY_Status( void *handle, uint8_t *status )
   return COMPONENT_OK;
 }
 
+/**
+ * @brief Initialize an accelerometer sensor
+ * @param id the accelerometer sensor identifier
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Init( ACCELERO_ID_t id, void **handle )
+{
+
+  *handle = NULL;
+
+  switch(id)
+  {
+    case ACCELERO_SENSORS_AUTO:
+    case LSM303AGR_X_0:
+    {
+      if( BSP_LSM303AGR_ACCELERO_Init(handle) == COMPONENT_ERROR )
+      {
+        return COMPONENT_ERROR;
+      }
+      break;
+    }
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Deinitialize accelerometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_DeInit( void **handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)(*handle);
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->DeInit == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->DeInit( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  memset(ctx, 0, sizeof(DrvContextTypeDef));
+
+  *handle = NULL;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Enable accelerometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Sensor_Enable( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Sensor_Enable == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Sensor_Enable( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Disable accelerometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Sensor_Disable( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Sensor_Disable == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Sensor_Disable( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the accelerometer sensor is initialized
+ * @param handle the device handle
+ * @param status the pointer to the initialization status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_IsInitialized( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isInitialized;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the accelerometer sensor is enabled
+ * @param handle the device handle
+ * @param status the pointer to the enable status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_IsEnabled( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isEnabled;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the accelerometer sensor is combo
+ * @param handle the device handle
+ * @param status the pointer to the combo status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_IsCombo( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isCombo;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Get the accelerometer sensor instance
+ * @param handle the device handle
+ * @param instance the pointer to the device instance
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_Instance( void *handle, uint8_t *instance )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( instance == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *instance = ctx->instance;
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the WHO_AM_I ID of the accelerometer sensor
+ * @param handle the device handle
+ * @param who_am_i pointer to the value of WHO_AM_I register
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_WhoAmI( void *handle, uint8_t *who_am_i )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Get_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_WhoAmI( ctx, who_am_i ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Check the WHO_AM_I ID of the accelerometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Check_WhoAmI( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Check_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Check_WhoAmI( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the accelerometer sensor axes
+ * @param handle the device handle
+ * @param acceleration pointer where the values of the axes are written [mg]
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_Axes( void *handle, SensorAxes_t *acceleration )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(acceleration == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Axes == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Axes( ctx, acceleration ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the accelerometer sensor raw axes
+ * @param handle the device handle
+ * @param value pointer where the raw values of the axes are written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_AxesRaw( void *handle, SensorAxesRaw_t *value )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(value == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_AxesRaw == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_AxesRaw( ctx, value) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Get the accelerometer sensor sensitivity
+ * @param handle the device handle
+ * @param sensitivity pointer where the sensitivity value is written [mg/LSB]
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_Sensitivity( void *handle, float *sensitivity )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(sensitivity == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Sensitivity == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Sensitivity( ctx, sensitivity ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the accelerometer sensor output data rate
+ * @param handle the device handle
+ * @param odr pointer where the output data rate is written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_ODR( void *handle, float *odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(odr == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_ODR == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_ODR( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the accelerometer sensor output data rate
+ * @param handle the device handle
+ * @param odr the functional output data rate to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Set_ODR( void *handle, SensorOdr_t odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_ODR == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_ODR( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the accelerometer sensor output data rate
+ * @param handle the device handle
+ * @param odr the output data rate value to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Set_ODR_Value( void *handle, float odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_ODR_Value == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_ODR_Value( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the accelerometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale pointer where the full scale is written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_FS( void *handle, float *fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(fullScale == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_FS == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_FS( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the accelerometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale the functional full scale to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Set_FS( void *handle, SensorFs_t fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_FS == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_FS( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the accelerometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale the full scale value to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Set_FS_Value( void *handle, float fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_FS_Value == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_FS_Value( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the accelerometer sensor axes status
+ * @param handle the device handle
+ * @param xyz_enabled the pointer to the axes enabled/disabled status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_Axes_Status( void *handle, uint8_t *xyz_enabled )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(xyz_enabled == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Axes_Status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_Axes_Status( ctx, xyz_enabled ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the enabled/disabled status of the accelerometer sensor axes
+ * @param handle the device handle
+ * @param enable_xyz vector of the axes enabled/disabled status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Set_Axes_Status( void *handle, uint8_t *enable_xyz )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(enable_xyz == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Set_Axes_Status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Set_Axes_Status( ctx, enable_xyz ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Read the data from register
+ * @param handle the device handle
+ * @param reg register address
+ * @param data register data
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Read_Reg( void *handle, uint8_t reg, uint8_t *data )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if(data == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Read_Reg == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Read_Reg( ctx, reg, data ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Write the data to register
+ * @param handle the device handle
+ * @param reg register address
+ * @param data register data
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Write_Reg( void *handle, uint8_t reg, uint8_t data )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Write_Reg == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Write_Reg( ctx, reg, data ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get accelerometer data ready status
+ * @param handle the device handle
+ * @param status the data ready status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_ACCELERO_Get_DRDY_Status( void *handle, uint8_t *status )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  ACCELERO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( ACCELERO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Get_DRDY_Status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_DRDY_Status( ctx, status ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
 
 DrvStatusTypeDef SensorDevicesInit()
 {
@@ -3526,7 +4364,12 @@ DrvStatusTypeDef SensorDevicesInit()
 	  return status;
 	}
 
-	status = BSP_MAGNETO_Init(LPS22HB_P_0, &hMAGNETO);
+	status = BSP_MAGNETO_Init(LSM303AGR_M_0, &hMAGNETO);
+	if (status != COMPONENT_OK) {
+	  return status;
+	}
+
+	status = BSP_ACCELERO_Init(LSM303AGR_X_0, &hACCELERO);
 	if (status != COMPONENT_OK) {
 	  return status;
 	}
@@ -3552,6 +4395,11 @@ DrvStatusTypeDef SensorDevicesInit()
 	  return status;
 	}
 
+	status = BSP_ACCELERO_Sensor_Enable(hACCELERO);
+	if (status != COMPONENT_OK) {
+	  return status;
+	}
+
 	return status;
 }
 
@@ -3562,6 +4410,7 @@ DrvStatusTypeDef CollectSensorData() {
 	float TEMPERATURE_Value = 0;
 	float PRESSURE_Value = 0;
 	float MAGNETO_Value = 0;
+	float ACCELERO_Value = 0;
 	
 	DrvStatusTypeDef status = COMPONENT_OK;
 
@@ -3589,10 +4438,17 @@ DrvStatusTypeDef CollectSensorData() {
 		return status;
 	}
 
+	status = BSP_ACCELERO_Get_FS(hACCELERO, &ACCELERO_Value);
+	if (status != COMPONENT_OK) {
+		printf("Accelero Sensor can not initialized! \r\n");
+		return status;
+	}
+
 	humidity    = (uint16_t)(HUMIDITY_Value * 2);            /* in %*2     */
 	temperature = (int16_t)(TEMPERATURE_Value * 10);         /* in �C * 10 */
 	pressure    = (uint16_t)(PRESSURE_Value * 100 / 10);      /* in hPa / 10 */
 	magneto     = (uint16_t)(MAGNETO_Value * 10);
+	accelero    = (uint16_t)(ACCELERO_Value * 10);
 
 	return status;
 }

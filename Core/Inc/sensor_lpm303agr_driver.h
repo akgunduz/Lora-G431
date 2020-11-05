@@ -12,6 +12,7 @@
 #include "component.h"
 
 extern DrvStatusTypeDef BSP_LSM303AGR_MAGNETO_Init(void **handle);
+extern DrvStatusTypeDef BSP_LSM303AGR_ACCELERO_Init( void **handle );
 
 
 #endif /* INC_SENSOR_LPM303AGR_DRIVER_H_ */
