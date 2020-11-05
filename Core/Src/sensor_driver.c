@@ -5253,12 +5253,14 @@ DrvStatusTypeDef SensorDevicesInit()
 
 	status = BSP_ACCELERO_Init(LSM303AGR_X_0, &hACCELERO);
 	if (status != COMPONENT_OK) {
+		printf("Accelero Sensor can not initialized! \r\n");
 	  return status;
 	}
 
 	/* Set ODR to 400Hz for FFT */
 	status = BSP_ACCELERO_Set_ODR_Value(hACCELERO, 400.0f);
 	if (status != COMPONENT_OK) {
+		printf("Accelero Sensor can not set ODR value! \r\n");
 	  return status;
 	}
 
@@ -5285,6 +5287,7 @@ DrvStatusTypeDef SensorDevicesInit()
 
 	status = BSP_ACCELERO_Sensor_Enable(hACCELERO);
 	if (status != COMPONENT_OK) {
+		printf("Accelero Sensor can not enabled! \r\n");
 	  return status;
 	}
 
