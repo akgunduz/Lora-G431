@@ -7070,3 +7070,8 @@ ACCELERO_Drv_t LSM303AGR_X_Drv =
   LSM303AGR_X_Get_DRDY_Status
 };
 
+/**
+ * @brief LSM303AGR_ACC combo data structure definition
+ */
+LSM303AGR_Combo_Data_t LSM303AGR_Combo_Data[LSM303AGR_SENSORS_MAX_NUM];
+

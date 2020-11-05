@@ -2391,6 +2391,27 @@ status_t LSM303AGR_ACC_R_ClickTimeWindow(void *handle, u8_t *value);
 *******************************************************************************/
 status_t LSM303AGR_ACC_Get_Voltage_ADC(void *handle, u8_t *buff);
 
+#define LSM303AGR_SENSORS_MAX_NUM  1     /**< LSM303AGR max number of instances */
+
+/**
+ * @brief LSM303AGR combo specific data internal structure definition
+ */
+typedef struct
+{
+  uint8_t isAccInitialized;
+  uint8_t isMagInitialized;
+} LSM303AGR_Combo_Data_t;
+
+/**
+ * @}
+ */
+
+/** @addtogroup LSM303AGR_COMBO_Public_Variables Public variables
+ * @{
+ */
+
+extern LSM303AGR_Combo_Data_t LSM303AGR_Combo_Data[LSM303AGR_SENSORS_MAX_NUM];
+
 #define LSM303AGR_ACC_SENSITIVITY_FOR_FS_2G_NORMAL_MODE               3.900  /**< Sensitivity value for 2 g full scale and normal mode [mg/LSB] */
 #define LSM303AGR_ACC_SENSITIVITY_FOR_FS_2G_HIGH_RESOLUTION_MODE      0.980  /**< Sensitivity value for 2 g full scale and high resolution mode [mg/LSB] */
 #define LSM303AGR_ACC_SENSITIVITY_FOR_FS_2G_LOW_POWER_MODE           15.630  /**< Sensitivity value for 2 g full scale and low power mode [mg/LSB] */
@@ -2404,10 +2425,34 @@ status_t LSM303AGR_ACC_Get_Voltage_ADC(void *handle, u8_t *buff);
 #define LSM303AGR_ACC_SENSITIVITY_FOR_FS_16G_HIGH_RESOLUTION_MODE    11.720  /**< Sensitivity value for 16 g full scale and high resolution mode [mg/LSB] */
 #define LSM303AGR_ACC_SENSITIVITY_FOR_FS_16G_LOW_POWER_MODE         187.580  /**< Sensitivity value for 16 g full scale and low power mode [mg/LSB] */
 
+/**
+ * @brief LSM303AGR_ACC extended features driver internal structure definition
+ */
+  
 typedef struct
 {
+  DrvStatusTypeDef ( *Get_AxesSuperRaw ) ( DrvContextTypeDef*, int16_t *, ACTIVE_AXIS_t );
+  DrvStatusTypeDef ( *Get_OpMode )       ( DrvContextTypeDef*, OP_MODE_t * );
+  DrvStatusTypeDef ( *Set_OpMode )       ( DrvContextTypeDef*, OP_MODE_t );
+  DrvStatusTypeDef ( *Get_Active_Axis )  ( DrvContextTypeDef*, ACTIVE_AXIS_t * );
+  DrvStatusTypeDef ( *Set_Active_Axis )  ( DrvContextTypeDef*, ACTIVE_AXIS_t );
+  DrvStatusTypeDef ( *Enable_HP_Filter)  ( DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Disable_HP_Filter) ( DrvContextTypeDef* );
+  DrvStatusTypeDef ( *ClearDRDY)         ( DrvContextTypeDef*, ACTIVE_AXIS_t );
+  DrvStatusTypeDef ( *Set_INT1_DRDY)     ( DrvContextTypeDef*, INT1_DRDY_CONFIG_t );
+} LSM303AGR_X_ExtDrv_t;
+
+  
+/**
+ * @brief LSM303AGR_ACC accelero specific data internal structure definition
+ */
+
+typedef struct
+{
+  LSM303AGR_Combo_Data_t *comboData;       /* Combo data to manage in software SPI 3-Wire initialization of the combo sensors */
   float Previous_ODR;
 } LSM303AGR_X_Data_t;
+
 
 extern ACCELERO_Drv_t LSM303AGR_X_Drv;
 

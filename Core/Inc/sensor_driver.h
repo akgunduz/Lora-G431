@@ -206,7 +206,10 @@ extern uint16_t pressure;
 extern int16_t temperature;
 extern uint16_t humidity;
 extern uint16_t magneto;
-extern uint16_t accelero;
+extern int16_t accelero[3];
+extern uint32_t fftMaxAmpl;
+extern uint32_t fftMaxFreq;
+
 
 
 #endif /* INC_SENSOR_DRIVER_H_ */
