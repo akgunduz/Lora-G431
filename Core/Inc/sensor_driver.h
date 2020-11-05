@@ -9,6 +9,7 @@
 #define INC_SENSOR_DRIVER_H_
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "sensor_board.h"
 
 typedef enum
@@ -117,12 +118,57 @@ DrvStatusTypeDef BSP_PRESSURE_FIFO_Set_Watermark_Level_Ext(void *handle, uint8_t
 DrvStatusTypeDef BSP_PRESSURE_FIFO_Stop_On_Fth_Ext(void *handle, uint8_t status);
 DrvStatusTypeDef BSP_PRESSURE_FIFO_Usage_Ext(void *handle, uint8_t status);
 
+typedef enum
+{
+  MAGNETO_SENSORS_AUTO = -1,     /* Always first element and equal to -1 */
+  LSM303AGR_M_0                  /* Default on board. */
+} MAGNETO_ID_t;
+
+#define MAGNETO_SENSORS_MAX_NUM 1
+
+/* Sensor Configuration Functions */
+DrvStatusTypeDef BSP_MAGNETO_Init( MAGNETO_ID_t id, void **handle );
+DrvStatusTypeDef BSP_MAGNETO_DeInit( void **handle );
+DrvStatusTypeDef BSP_MAGNETO_Sensor_Enable( void *handle );
+DrvStatusTypeDef BSP_MAGNETO_Sensor_Disable( void *handle );
+DrvStatusTypeDef BSP_MAGNETO_IsInitialized( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_MAGNETO_IsEnabled( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_MAGNETO_IsCombo( void *handle, uint8_t *status );
+DrvStatusTypeDef BSP_MAGNETO_Get_Instance( void *handle, uint8_t *instance );
+DrvStatusTypeDef BSP_MAGNETO_Get_WhoAmI( void *handle, uint8_t *who_am_i );
+DrvStatusTypeDef BSP_MAGNETO_Check_WhoAmI( void *handle );
+DrvStatusTypeDef BSP_MAGNETO_Get_Axes( void *handle, SensorAxes_t *magnetic_field );
+DrvStatusTypeDef BSP_MAGNETO_Get_AxesRaw( void *handle, SensorAxesRaw_t *value );
+DrvStatusTypeDef BSP_MAGNETO_Get_Sensitivity( void *handle, float *sensitivity );
+DrvStatusTypeDef BSP_MAGNETO_Get_ODR( void *handle, float *odr );
+DrvStatusTypeDef BSP_MAGNETO_Set_ODR( void *handle, SensorOdr_t odr );
+DrvStatusTypeDef BSP_MAGNETO_Set_ODR_Value( void *handle, float odr );
+DrvStatusTypeDef BSP_MAGNETO_Get_FS( void *handle, float *fullScale );
+DrvStatusTypeDef BSP_MAGNETO_Set_FS( void *handle, SensorFs_t fullScale );
+DrvStatusTypeDef BSP_MAGNETO_Set_FS_Value( void *handle, float fullScale );
+DrvStatusTypeDef BSP_MAGNETO_Read_Reg( void *handle, uint8_t reg, uint8_t *data );
+DrvStatusTypeDef BSP_MAGNETO_Write_Reg( void *handle, uint8_t reg, uint8_t data );
+DrvStatusTypeDef BSP_MAGNETO_Get_DRDY_Status( void *handle, uint8_t *status );
+
+
 DrvStatusTypeDef SensorDevicesInit();
 DrvStatusTypeDef CollectSensorData();
+
+extern DrvContextTypeDef HUMIDITY_SensorHandle[ HUMIDITY_SENSORS_MAX_NUM ];
+extern HUMIDITY_Data_t HUMIDITY_Data[ HUMIDITY_SENSORS_MAX_NUM ]; /* Humidity - all. */
+
+extern DrvContextTypeDef TEMPERATURE_SensorHandle[ TEMPERATURE_SENSORS_MAX_NUM ];
+extern TEMPERATURE_Data_t TEMPERATURE_Data[ TEMPERATURE_SENSORS_MAX_NUM ]; /* Temperature - all. */
+
+extern DrvContextTypeDef PRESSURE_SensorHandle[ PRESSURE_SENSORS_MAX_NUM ];
+extern PRESSURE_Data_t PRESSURE_Data[ PRESSURE_SENSORS_MAX_NUM ]; /* Pressure - all. */
+
+extern DrvContextTypeDef MAGNETO_SensorHandle[ MAGNETO_SENSORS_MAX_NUM ];
+extern MAGNETO_Data_t MAGNETO_Data[ MAGNETO_SENSORS_MAX_NUM ]; // Magnetometer - all.
+
 
 extern uint16_t pressure;
 extern int16_t temperature;
 extern uint16_t humidity;
-
 
 #endif /* INC_SENSOR_DRIVER_H_ */

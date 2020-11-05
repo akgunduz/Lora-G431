@@ -18,80 +18,43 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "sensor_driver.h"
+
+#include <stdio.h>
+
 #include "i2c.h"
 
-static DrvContextTypeDef HUMIDITY_SensorHandle[ HUMIDITY_SENSORS_MAX_NUM ];
-static HUMIDITY_Data_t HUMIDITY_Data[ HUMIDITY_SENSORS_MAX_NUM ]; /* Humidity - all. */
-static HTS221_H_Data_t HTS221_H_0_Data; /* Humidity - sensor 0. */
+#include "sensor_board.h"
+#include "sensor_hts221_board.h"
+#include "sensor_lps22hb_board.h"
+#include "sensor_lpm303agr_board.h"
 
-static DrvContextTypeDef TEMPERATURE_SensorHandle[ TEMPERATURE_SENSORS_MAX_NUM ];
-static TEMPERATURE_Data_t TEMPERATURE_Data[ TEMPERATURE_SENSORS_MAX_NUM ]; /* Temperature - all. */
-static HTS221_T_Data_t HTS221_T_0_Data; /* Temperature - sensor 0 HTS221 on board. */
-static LPS22HB_T_Data_t LPS22HB_T_0_Data; /* Temperature - sensor 1 LPS22H/B via DIL24. */
+#include "sensor_driver.h"
+#include "sensor_hts221_driver.h"
+#include "sensor_lps22hb_driver.h"
+#include "sensor_lpm303agr_driver.h"
 
-static DrvContextTypeDef PRESSURE_SensorHandle[ PRESSURE_SENSORS_MAX_NUM ];
-static PRESSURE_Data_t PRESSURE_Data[ PRESSURE_SENSORS_MAX_NUM ]; /* Pressure - all. */
-static LPS22HB_P_Data_t LPS22HB_P_0_Data; /* Pressure - sensor 0 LPS22H/B via DIL24. */
+DrvContextTypeDef HUMIDITY_SensorHandle[ HUMIDITY_SENSORS_MAX_NUM ];
+HUMIDITY_Data_t HUMIDITY_Data[ HUMIDITY_SENSORS_MAX_NUM ]; /* Humidity - all. */
+
+DrvContextTypeDef TEMPERATURE_SensorHandle[ TEMPERATURE_SENSORS_MAX_NUM ];
+TEMPERATURE_Data_t TEMPERATURE_Data[ TEMPERATURE_SENSORS_MAX_NUM ]; /* Temperature - all. */
+
+DrvContextTypeDef PRESSURE_SensorHandle[ PRESSURE_SENSORS_MAX_NUM ];
+PRESSURE_Data_t PRESSURE_Data[ PRESSURE_SENSORS_MAX_NUM ]; /* Pressure - all. */
+
+DrvContextTypeDef MAGNETO_SensorHandle[ MAGNETO_SENSORS_MAX_NUM ];
+MAGNETO_Data_t MAGNETO_Data[ MAGNETO_SENSORS_MAX_NUM ]; // Magnetometer - all.
+
 
 uint16_t pressure = 0;
 int16_t temperature = 0;
 uint16_t humidity = 0;
+uint16_t magneto = 0;
 
 void *hHUMIDITY = NULL;
 void *hTEMPERATURE = NULL;
 void *hPRESSURE = NULL;
-
-static DrvStatusTypeDef BSP_HTS221_HUMIDITY_Init(void **handle)
-{
-  HUMIDITY_Drv_t *driver = NULL;
-
-  if (HUMIDITY_SensorHandle[ HTS221_H_0 ].isInitialized == 1)
-  {
-    /* We have reached the max num of instance for this component */
-    return COMPONENT_ERROR;
-  }
-
-  if (Sensor_IO_Init() == COMPONENT_ERROR)
-  {
-    return COMPONENT_ERROR;
-  }
-
-  /* Setup sensor handle. */
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].who_am_i      = HTS221_WHO_AM_I_VAL;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].address       = HTS221_ADDRESS_DEFAULT;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].instance      = HTS221_H_0;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].isInitialized = 0;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].isEnabled     = 0;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].isCombo       = 1;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].pData         = (void *)&HUMIDITY_Data[ HTS221_H_0 ];
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].pVTable       = (void *)&HTS221_H_Drv;
-  HUMIDITY_SensorHandle[ HTS221_H_0 ].pExtVTable    = 0;
-
-  HTS221_H_0_Data.comboData = &HTS221_Combo_Data[0];
-  HUMIDITY_Data[ HTS221_H_0 ].pComponentData = (void *)&HTS221_H_0_Data;
-  HUMIDITY_Data[ HTS221_H_0 ].pExtData       = 0;
-
-  *handle = (void *)&HUMIDITY_SensorHandle[ HTS221_H_0 ];
-
-  driver = (HUMIDITY_Drv_t *)((DrvContextTypeDef *)(*handle))->pVTable;
-
-  if (driver->Init == NULL)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  if (driver->Init((DrvContextTypeDef *)(*handle)) == COMPONENT_ERROR)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  return COMPONENT_OK;
-}
+void *hMAGNETO = NULL;
 
 /**
  * @brief Initialize a humidity sensor
@@ -661,123 +624,6 @@ DrvStatusTypeDef BSP_HUMIDITY_Get_DRDY_Status(void *handle, uint8_t *status)
   {
     return COMPONENT_ERROR;
   }
-
-  return COMPONENT_OK;
-}
-
-/**
- * @brief Initialize HTS221 temperature sensor
- * @param handle the device handle
- * @retval COMPONENT_OK in case of success
- * @retval COMPONENT_ERROR in case of failure
- */
-static DrvStatusTypeDef BSP_HTS221_TEMPERATURE_Init(void **handle)
-{
-  TEMPERATURE_Drv_t *driver = NULL;
-
-  if (TEMPERATURE_SensorHandle[ HTS221_T_0 ].isInitialized == 1)
-  {
-    /* We have reached the max num of instance for this component */
-    return COMPONENT_ERROR;
-  }
-
-  if (Sensor_IO_Init() == COMPONENT_ERROR)
-  {
-    return COMPONENT_ERROR;
-  }
-
-  /* Setup sensor handle. */
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].who_am_i      = HTS221_WHO_AM_I_VAL;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].address       = HTS221_ADDRESS_DEFAULT;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].instance      = HTS221_T_0;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].isInitialized = 0;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].isEnabled     = 0;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].isCombo       = 1;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].pData         = (void *)&TEMPERATURE_Data[ HTS221_T_0 ];
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].pVTable       = (void *)&HTS221_T_Drv;
-  TEMPERATURE_SensorHandle[ HTS221_T_0 ].pExtVTable    = 0;
-
-  HTS221_T_0_Data.comboData = &HTS221_Combo_Data[0];
-  TEMPERATURE_Data[ HTS221_T_0 ].pComponentData = (void *)&HTS221_T_0_Data;
-  TEMPERATURE_Data[ HTS221_T_0 ].pExtData       = 0;
-
-  *handle = (void *)&TEMPERATURE_SensorHandle[ HTS221_T_0 ];
-
-  driver = (TEMPERATURE_Drv_t *)((DrvContextTypeDef *)(*handle))->pVTable;
-
-  if (driver->Init == NULL)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  if (driver->Init((DrvContextTypeDef *)(*handle)) == COMPONENT_ERROR)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  return COMPONENT_OK;
-}
-
-/**
- * @brief Initialize LPS22HB temperature sensor
- * @param handle the device handle
- * @retval COMPONENT_OK in case of success
- * @retval COMPONENT_ERROR in case of failure
- */
-static DrvStatusTypeDef BSP_LPS22HB_TEMPERATURE_Init(void **handle)
-{
-  TEMPERATURE_Drv_t *driver = NULL;
-
-  if (TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].isInitialized == 1)
-  {
-    /* We have reached the max num of instance for this component */
-    return COMPONENT_ERROR;
-  }
-
-  if (Sensor_IO_Init() == COMPONENT_ERROR)
-  {
-    return COMPONENT_ERROR;
-  }
-
-  /* Setup sensor handle. */
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].who_am_i      = LPS22HB_WHO_AM_I_VAL;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].address       = LPS22HB_ADDRESS_HIGH;         /* rhf LPS22HB_ADDRESS_LOW; */
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].instance      = LPS22HB_T_0;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].isInitialized = 0;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].isEnabled     = 0;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].isCombo       = 1;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].pData         = (void *)&TEMPERATURE_Data[ LPS22HB_T_0 ];
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].pVTable       = (void *)&LPS22HB_T_Drv;
-  TEMPERATURE_SensorHandle[ LPS22HB_T_0 ].pExtVTable    = (void *)&LPS22HB_T_ExtDrv;
-
-  LPS22HB_T_0_Data.comboData = &LPS22HB_Combo_Data[0];
-  TEMPERATURE_Data[ LPS22HB_T_0 ].pComponentData = (void *)&LPS22HB_T_0_Data;
-  TEMPERATURE_Data[ LPS22HB_T_0 ].pExtData       = 0;
-
-  *handle = (void *)&TEMPERATURE_SensorHandle[ LPS22HB_T_0 ];
-
-  driver = (TEMPERATURE_Drv_t *)((DrvContextTypeDef *)(*handle))->pVTable;
-
-  if (driver->Init == NULL)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  if (driver->Init((DrvContextTypeDef *)(*handle)) == COMPONENT_ERROR)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  /* Configure interrupt lines for LPS22HB */
-  //LPS22HB_Sensor_IO_ITConfig();
 
   return COMPONENT_OK;
 }
@@ -1854,66 +1700,6 @@ DrvStatusTypeDef BSP_TEMPERATURE_FIFO_Usage_Ext(void *handle, uint8_t status)
 }
 
 /**
- * @brief Initialize LPS22HB pressure sensor
- * @param handle the device handle
- * @retval COMPONENT_OK in case of success
- * @retval COMPONENT_ERROR in case of failure
- */
-static DrvStatusTypeDef BSP_LPS22HB_PRESSURE_Init(void **handle)
-{
-  PRESSURE_Drv_t *driver = NULL;
-
-  if (PRESSURE_SensorHandle[ LPS22HB_P_0 ].isInitialized == 1)
-  {
-    /* We have reached the max num of instance for this component */
-    return COMPONENT_ERROR;
-  }
-
-  if (Sensor_IO_Init() == COMPONENT_ERROR)
-  {
-    return COMPONENT_ERROR;
-  }
-
-  /* Setup sensor handle. */
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].who_am_i      = LPS22HB_WHO_AM_I_VAL;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].address       = LPS22HB_ADDRESS_HIGH;    /* rhf LPS22HB_ADDRESS_LOW; */
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].instance      = LPS22HB_P_0;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].isInitialized = 0;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].isEnabled     = 0;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].isCombo       = 1;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].pData         = (void *)&PRESSURE_Data[ LPS22HB_P_0 ];
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].pVTable       = (void *)&LPS22HB_P_Drv;
-  PRESSURE_SensorHandle[ LPS22HB_P_0 ].pExtVTable    = (void *)&LPS22HB_P_ExtDrv;
-
-  LPS22HB_P_0_Data.comboData = &LPS22HB_Combo_Data[0];
-  PRESSURE_Data[ LPS22HB_P_0 ].pComponentData = (void *)&LPS22HB_P_0_Data;
-  PRESSURE_Data[ LPS22HB_P_0 ].pExtData       = 0;
-
-  *handle = (void *)&PRESSURE_SensorHandle[ LPS22HB_P_0 ];
-
-  driver = (PRESSURE_Drv_t *)((DrvContextTypeDef *)(*handle))->pVTable;
-
-  if (driver->Init == NULL)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  if (driver->Init((DrvContextTypeDef *)(*handle)) == COMPONENT_ERROR)
-  {
-    memset((*handle), 0, sizeof(DrvContextTypeDef));
-    *handle = NULL;
-    return COMPONENT_ERROR;
-  }
-
-  /* Configure interrupt lines for LPS22HB */
-  //LPS22HB_Sensor_IO_ITConfig();
-
-  return COMPONENT_OK;
-}
-
-/**
  * @brief Initialize a pressure sensor
  * @param id the pressure sensor identifier
  * @param handle the device handle
@@ -2969,6 +2755,758 @@ DrvStatusTypeDef BSP_PRESSURE_FIFO_Usage_Ext(void *handle, uint8_t status)
   }
 }
 
+
+DrvStatusTypeDef BSP_MAGNETO_Init( MAGNETO_ID_t id, void **handle )
+{
+
+  *handle = NULL;
+
+  switch(id)
+  {
+    case MAGNETO_SENSORS_AUTO:
+    default:
+    {
+      if( BSP_LSM303AGR_MAGNETO_Init(handle)  == COMPONENT_ERROR )
+      {
+        return COMPONENT_ERROR;
+      }
+      break;
+    }
+    case LSM303AGR_M_0:
+    {
+      if( BSP_LSM303AGR_MAGNETO_Init(handle)  == COMPONENT_ERROR )
+      {
+        return COMPONENT_ERROR;
+      }
+      break;
+    }
+  }
+
+  return COMPONENT_OK;
+}
+
+/**
+ * @brief Deinitialize a magnetometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_DeInit( void **handle )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)(*handle);
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->DeInit == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->DeInit( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  memset(ctx, 0, sizeof(DrvContextTypeDef));
+
+  *handle = NULL;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Enable magnetometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Sensor_Enable( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Sensor_Enable == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Sensor_Enable( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Disable magnetometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Sensor_Disable( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Sensor_Disable == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Sensor_Disable( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the magnetometer sensor is initialized
+ * @param handle the device handle
+ * @param status the pointer to the initialization status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_IsInitialized( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isInitialized;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the magnetometer sensor is enabled
+ * @param handle the device handle
+ * @param status the pointer to the enable status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_IsEnabled( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isEnabled;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Check if the magnetometer sensor is combo
+ * @param handle the device handle
+ * @param status the pointer to the combo status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_IsCombo( void *handle, uint8_t *status )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *status = ctx->isCombo;
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Get the magnetometer sensor instance
+ * @param handle the device handle
+ * @param instance the pointer to the device instance
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_Instance( void *handle, uint8_t *instance )
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( instance == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  *instance = ctx->instance;
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the WHO_AM_I ID of the magnetometer sensor
+ * @param handle the device handle
+ * @param who_am_i pointer to the value of WHO_AM_I register
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_WhoAmI( void *handle, uint8_t *who_am_i )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( who_am_i == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI( ctx, who_am_i ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Check the WHO_AM_I ID of the magnetometer sensor
+ * @param handle the device handle
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Check_WhoAmI( void *handle )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Check_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Check_WhoAmI( ctx ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the magnetometer sensor axes
+ * @param handle the device handle
+ * @param magnetic_field pointer where the values of the axes are written [mgauss]
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_Axes( void *handle, SensorAxes_t *magnetic_field )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( magnetic_field == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_Axes == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_Axes( ctx, magnetic_field ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the magnetometer sensor raw axes
+ * @param handle the device handle
+ * @param value pointer where the raw values of the axes are written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_AxesRaw( void *handle, SensorAxesRaw_t *value )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( value == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_AxesRaw == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_AxesRaw( ctx, value ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+
+/**
+ * @brief Get the magnetometer sensor sensitivity
+ * @param handle the device handle
+ * @param sensitivity pointer where the sensitivity value is written [LSB/gauss]
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_Sensitivity( void *handle, float *sensitivity )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( sensitivity == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_Sensitivity == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_Sensitivity( ctx, sensitivity ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the magnetometer sensor output data rate
+ * @param handle the device handle
+ * @param odr pointer where the output data rate is written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_ODR( void *handle, float *odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( odr == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_ODR == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_ODR( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the magnetometer sensor output data rate
+ * @param handle the device handle
+ * @param odr the functional output data rate to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Set_ODR( void *handle, SensorOdr_t odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_ODR == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_ODR( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the magnetometer sensor output data rate
+ * @param handle the device handle
+ * @param odr the output data rate value to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Set_ODR_Value( void *handle, float odr )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_ODR_Value == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_ODR_Value( ctx, odr ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get the magnetometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale pointer where the full scale is written
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_FS( void *handle, float *fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( fullScale == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_FS == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_FS( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the magnetometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale the functional full scale to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Set_FS( void *handle, SensorFs_t fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_FS == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_FS( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Set the magnetometer sensor full scale
+ * @param handle the device handle
+ * @param fullScale the full scale value to be set
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Set_FS_Value( void *handle, float fullScale )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Set_FS_Value == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Set_FS_Value( ctx, fullScale ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+/**
+ * @brief Read the data from register
+ * @param handle the device handle
+ * @param reg register address
+ * @param data register data
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Read_Reg( void *handle, uint8_t reg, uint8_t *data )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if(data == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Read_Reg == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Read_Reg( ctx, reg, data ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Write the data to register
+ * @param handle the device handle
+ * @param reg register address
+ * @param data register data
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Write_Reg( void *handle, uint8_t reg, uint8_t data )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Write_Reg == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Write_Reg( ctx, reg, data ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
+
+/**
+ * @brief Get magnetometer data ready status
+ * @param handle the device handle
+ * @param status the data ready status
+ * @retval COMPONENT_OK in case of success
+ * @retval COMPONENT_ERROR in case of failure
+ */
+DrvStatusTypeDef BSP_MAGNETO_Get_DRDY_Status( void *handle, uint8_t *status )
+{
+
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  MAGNETO_Drv_t *driver = NULL;
+
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+
+  driver = ( MAGNETO_Drv_t * )ctx->pVTable;
+
+  if ( driver->Get_DRDY_Status == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  if ( driver->Get_DRDY_Status( ctx, status ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+
+  return COMPONENT_OK;
+}
+
+
 DrvStatusTypeDef SensorDevicesInit()
 {
 	DrvStatusTypeDef status = COMPONENT_OK;
@@ -2983,10 +3521,16 @@ DrvStatusTypeDef SensorDevicesInit()
 	  return status;
 	}
 
-	status = BSP_PRESSURE_Init(PRESSURE_SENSORS_AUTO, &hPRESSURE);
+	status = BSP_PRESSURE_Init(LPS22HB_P_0, &hPRESSURE);
 	if (status != COMPONENT_OK) {
 	  return status;
 	}
+
+	status = BSP_MAGNETO_Init(LPS22HB_P_0, &hMAGNETO);
+	if (status != COMPONENT_OK) {
+	  return status;
+	}
+
 	/* Enable sensors */
 	status = BSP_HUMIDITY_Sensor_Enable(hHUMIDITY);
 	if (status != COMPONENT_OK) {
@@ -3003,6 +3547,11 @@ DrvStatusTypeDef SensorDevicesInit()
 	  return status;
 	}
 
+	status = BSP_MAGNETO_Sensor_Enable(hMAGNETO);
+	if (status != COMPONENT_OK) {
+	  return status;
+	}
+
 	return status;
 }
 
@@ -3012,6 +3561,7 @@ DrvStatusTypeDef CollectSensorData() {
 	float HUMIDITY_Value = 0;
 	float TEMPERATURE_Value = 0;
 	float PRESSURE_Value = 0;
+	float MAGNETO_Value = 0;
 	
 	DrvStatusTypeDef status = COMPONENT_OK;
 
@@ -3033,9 +3583,16 @@ DrvStatusTypeDef CollectSensorData() {
 		return status;
 	}
 
+	status = BSP_MAGNETO_Get_FS(hMAGNETO, &MAGNETO_Value);
+	if (status != COMPONENT_OK) {
+		printf("Magneto Sensor can not initialized! \r\n");
+		return status;
+	}
+
 	humidity    = (uint16_t)(HUMIDITY_Value * 2);            /* in %*2     */
 	temperature = (int16_t)(TEMPERATURE_Value * 10);         /* in �C * 10 */
 	pressure    = (uint16_t)(PRESSURE_Value * 100 / 10);      /* in hPa / 10 */
+	magneto     = (uint16_t)(MAGNETO_Value * 10);
 
 	return status;
 }

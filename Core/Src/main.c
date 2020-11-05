@@ -309,7 +309,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 static void PrepareSensorData(sSendDataBinary_t *SendDataBinary)
 {
 	int index = 0;
-	uint8_t cchannel = 0;
 
 //	SendDataBinary->Buffer[index++] = cchannel++;
 /*	SendDataBinary->Buffer[index++] = LPP_DATATYPE_BAROMETER;
