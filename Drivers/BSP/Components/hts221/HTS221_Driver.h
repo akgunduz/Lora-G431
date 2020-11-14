@@ -1,15 +1,83 @@
-/*
- * sensor_board.h
+/**
+ ******************************************************************************
+ * @file    HTS221_Driver.h
+ * @author  HESA Application Team
+ * @version V1.1
+ * @date    10-August-2016
+ * @brief   HTS221 driver header file
+ ******************************************************************************
+ * @attention
  *
- *  Created on: Mar 14, 2020
- *      Author: akgun
+ * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of STMicroelectronics nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
  */
 
-#ifndef INC_SENSOR_HTS221_BOARD_H_
-#define INC_SENSOR_HTS221_BOARD_H_
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __HTS221_DRIVER__H
+#define __HTS221_DRIVER__H
 
-#include "component.h"
-#include "sensor_board.h"
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Uncomment the line below to expanse the "assert_param" macro in the drivers code */
+#define USE_FULL_ASSERT_HTS221
+
+/* Exported macro ------------------------------------------------------------*/
+#ifdef  USE_FULL_ASSERT_HTS221
+
+/**
+* @brief  The assert_param macro is used for function's parameters check.
+* @param  expr: If expr is false, it calls assert_failed function which reports
+*         the name of the source file and the source line number of the call
+*         that failed. If expr is true, it returns no value.
+* @retval None
+*/
+#define HTS221_assert_param(expr) ((expr) ? (void)0 : HTS221_assert_failed((uint8_t *)__FILE__, __LINE__))
+/* Exported functions ------------------------------------------------------- */
+void HTS221_assert_failed(uint8_t* file, uint32_t line);
+#else
+#define HTS221_assert_param(expr) ((void)0)
+#endif /* USE_FULL_ASSERT_HTS221 */
+
+/** @addtogroup Environmental_Sensor
+* @{
+*/
+
+/** @addtogroup HTS221_DRIVER
+* @{
+*/
+
+/* Exported Types -------------------------------------------------------------*/
+/** @defgroup HTS221_Exported_Types
+* @{
+*/
+
 
 /**
 * @brief  Error code type.
@@ -367,7 +435,21 @@ typedef struct
 #define HTS221_T1_OUT_L        (uint8_t)0x3E
 #define HTS221_T1_OUT_H        (uint8_t)0x3F
 
-#define HTS221_assert_param(expr) ((void)0)
+
+/**
+* @}
+*/
+
+
+/**
+* @}
+*/
+
+
+/* Exported Functions -------------------------------------------------------------*/
+/** @defgroup HTS221_Exported_Functions
+* @{
+*/
 
 HTS221_Error_et HTS221_ReadReg( void *handle, uint8_t RegAddr, uint16_t NumByteToRead, uint8_t *Data );
 HTS221_Error_et HTS221_WriteReg( void *handle, uint8_t RegAddr, uint16_t NumByteToWrite, uint8_t *Data );
@@ -411,38 +493,22 @@ HTS221_Error_et HTS221_Get_IrqOutputType(void *handle, HTS221_OutputType_et* val
 HTS221_Error_et HTS221_Set_IrqEnable(void *handle, HTS221_State_et status);
 HTS221_Error_et HTS221_Get_IrqEnable(void *handle, HTS221_State_et* status);
 
-#define HTS221_SENSORS_MAX_NUM  1     /**< HTS221 max number of instances */
-#define HTS221_ADDRESS_DEFAULT  0xBE  /**< HTS221 I2C Address */
-
-typedef struct
-{
-  uint8_t isHumInitialized;
-  uint8_t isTempInitialized;
-  uint8_t isHumEnabled;
-  uint8_t isTempEnabled;
-} HTS221_Combo_Data_t;
+/**
+* @}
+*/
 
 /**
- * @brief HTS221 humidity specific data internal structure definition
- */
-
-typedef struct
-{
-  HTS221_Combo_Data_t *comboData;       /* Combo data to manage in software enable/disable of the combo sensors */
-} HTS221_H_Data_t;
-
+* @}
+*/
 
 /**
- * @brief HTS221 temperature specific data internal structure definition
- */
+* @}
+*/
 
-typedef struct
-{
-  HTS221_Combo_Data_t *comboData;       /* Combo data to manage in software enable/disable of the combo sensors */
-} HTS221_T_Data_t;
+#ifdef __cplusplus
+}
+#endif
 
-extern HUMIDITY_Drv_t HTS221_H_Drv;
-extern TEMPERATURE_Drv_t HTS221_T_Drv;
-extern HTS221_Combo_Data_t HTS221_Combo_Data[HTS221_SENSORS_MAX_NUM];
+#endif /* __HTS221_DRIVER__H */
 
-#endif /* INC_SENSOR_HTS221_BOARD_H_ */
+/******************* (C) COPYRIGHT 2013 STMicroelectronics *****END OF FILE****/

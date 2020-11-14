@@ -59,7 +59,7 @@ void MX_ADC1_Init(void)
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfConversion = 6;
+  hadc1.Init.NbrOfConversion = 5;
   hadc1.Init.DiscontinuousConvMode = ENABLE;
   hadc1.Init.NbrOfDiscConversion = 3;
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
@@ -96,7 +96,7 @@ void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_6;
+  sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -104,7 +104,7 @@ void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -112,7 +112,7 @@ void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -120,16 +120,8 @@ void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_12;
-  sConfig.Rank = ADC_REGULAR_RANK_5;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Regular Channel
-  */
   sConfig.Channel = ADC_CHANNEL_15;
-  sConfig.Rank = ADC_REGULAR_RANK_6;
+  sConfig.Rank = ADC_REGULAR_RANK_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -251,17 +243,16 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC1 GPIO Configuration
-    PC0     ------> ADC1_IN6
     PC3     ------> ADC1_IN9
     PB0     ------> ADC1_IN15
     PB1     ------> ADC1_IN12
     PB12     ------> ADC1_IN11
     PB14     ------> ADC1_IN5
     */
-    GPIO_InitStruct.Pin = SICAKLIK_2_Pin|SICAKLIK_3_Pin;
+    GPIO_InitStruct.Pin = SICAKLIK_2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(SICAKLIK_2_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = AKIM_3_Pin|AKIM_2_Pin|AKIM_1_Pin|SICAKLIK_1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -306,7 +297,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC2 GPIO Configuration
     PC2     ------> ADC2_IN8
-    PC3     ------> ADC2_IN9
     PA1     ------> ADC2_IN2
     PA4     ------> ADC2_IN17
     PA6     ------> ADC2_IN3
@@ -314,10 +304,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PB11     ------> ADC2_IN14
     PB15     ------> ADC2_IN15
     */
-    GPIO_InitStruct.Pin = RSIC_2_Pin|SICAKLIK_3_Pin;
+    GPIO_InitStruct.Pin = RSIC_2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(RSIC_2_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = MIK_1_Pin|AUX_3_Pin|MIK_2_Pin|RSIC_1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -368,14 +358,13 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     }
 
     /**ADC1 GPIO Configuration
-    PC0     ------> ADC1_IN6
     PC3     ------> ADC1_IN9
     PB0     ------> ADC1_IN15
     PB1     ------> ADC1_IN12
     PB12     ------> ADC1_IN11
     PB14     ------> ADC1_IN5
     */
-    HAL_GPIO_DeInit(GPIOC, SICAKLIK_2_Pin|SICAKLIK_3_Pin);
+    HAL_GPIO_DeInit(SICAKLIK_2_GPIO_Port, SICAKLIK_2_Pin);
 
     HAL_GPIO_DeInit(GPIOB, AKIM_3_Pin|AKIM_2_Pin|AKIM_1_Pin|SICAKLIK_1_Pin);
 
@@ -398,7 +387,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
     /**ADC2 GPIO Configuration
     PC2     ------> ADC2_IN8
-    PC3     ------> ADC2_IN9
     PA1     ------> ADC2_IN2
     PA4     ------> ADC2_IN17
     PA6     ------> ADC2_IN3
@@ -406,7 +394,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PB11     ------> ADC2_IN14
     PB15     ------> ADC2_IN15
     */
-    HAL_GPIO_DeInit(GPIOC, RSIC_2_Pin|SICAKLIK_3_Pin);
+    HAL_GPIO_DeInit(RSIC_2_GPIO_Port, RSIC_2_Pin);
 
     HAL_GPIO_DeInit(GPIOA, MIK_1_Pin|AUX_3_Pin|MIK_2_Pin|RSIC_1_Pin);
 

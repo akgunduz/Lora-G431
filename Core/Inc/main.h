@@ -61,12 +61,13 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BLUE_BTN_Pin GPIO_PIN_13
 #define BLUE_BTN_GPIO_Port GPIOC
-#define SICAKLIK_2_Pin GPIO_PIN_0
-#define SICAKLIK_2_GPIO_Port GPIOC
+#define LSM303AGR_INT_Pin GPIO_PIN_0
+#define LSM303AGR_INT_GPIO_Port GPIOC
+#define LSM303AGR_INT_EXTI_IRQn EXTI0_IRQn
 #define RSIC_2_Pin GPIO_PIN_2
 #define RSIC_2_GPIO_Port GPIOC
-#define SICAKLIK_3_Pin GPIO_PIN_3
-#define SICAKLIK_3_GPIO_Port GPIOC
+#define SICAKLIK_2_Pin GPIO_PIN_3
+#define SICAKLIK_2_GPIO_Port GPIOC
 #define LORA_LED_Pin GPIO_PIN_0
 #define LORA_LED_GPIO_Port GPIOA
 #define MIK_1_Pin GPIO_PIN_1

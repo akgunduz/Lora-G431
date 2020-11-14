@@ -250,10 +250,14 @@ void SystemClock_Config(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	UNUSED(GPIO_Pin);
-	BSP_LED_Toggle(LED_GREEN);
-	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+//	BSP_LED_Toggle(LED_GREEN);
+//	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+
+	if( GPIO_Pin == LSM303AGR_INT_Pin )
+	{
+	  AXL_INT_received = 1;
+	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)

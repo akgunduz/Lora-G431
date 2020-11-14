@@ -1,15 +1,85 @@
-/*
- * sensor_board.h
+/**
+ ******************************************************************************
+ * @file    LPS22HB_Driver.h
+ * @author  HESA Application Team
+ * @version V1.1
+ * @date    10-August-2016
+ * @brief   LPS22HB driver header file
+ ******************************************************************************
+ * @attention
  *
- *  Created on: Mar 14, 2020
- *      Author: akgun
+ * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of STMicroelectronics nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
  */
 
-#ifndef INC_SENSOR_LPS22HB_BOARD_H_
-#define INC_SENSOR_LPS22HB_BOARD_H_
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __LPS22HB_DRIVER__H
+#define __LPS22HB_DRIVER__H
 
-#include "component.h"
-#include "sensor_board.h"
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// the user must include the proper file where HAL_ReadReg and HAL_WriteReg are implemented
+//#include "HAL_EnvSensors.h"
+
+/* Uncomment the line below to expanse the "assert_param" macro in the  drivers code */
+//#define USE_FULL_ASSERT_LPS22HB
+
+/* Exported macro ------------------------------------------------------------*/
+#ifdef  USE_FULL_ASSERT_LPS22HB
+
+/**
+* @brief  The assert_param macro is used for function's parameters check.
+* @param  expr: If expr is false, it calls assert_failed function which reports
+*         the name of the source file and the source line number of the call
+*         that failed. If expr is true, it returns no value.
+* @retval None
+*/
+#define LPS22HB_assert_param(expr) ((expr) ? (void)0 : LPS22HB_assert_failed((uint8_t *)__FILE__, __LINE__))
+/* Exported functions ------------------------------------------------------- */
+void LPS22HB_assert_failed(uint8_t* file, uint32_t line);
+#else
+#define LPS22HB_assert_param(expr) ((void)0)
+#endif /* USE_FULL_ASSERT_LPS22HB */
+
+/** @addtogroup Environmental_Sensor
+* @{
+*/
+
+/** @addtogroup LPS22HB_DRIVER
+* @{
+*/
+
+/* Exported Types -------------------------------------------------------------*/
+/** @defgroup LPS22HB_Exported_Types
+* @{
+*/
 
 /**
 * @brief  Error type.
@@ -278,9 +348,9 @@ typedef struct
 * @brief  I2C address.
 */
 /* SD0/SA0(pin 5) is connected to the voltage supply*/
-//#define LPS22HB_ADDRESS  (uint8_t)0xBA
+#define LPS22HB_ADDRESS  (uint8_t)0xBA
 /*SDO/SA0 (pin5) is connected to the GND*/
-#define LPS22HB_ADDRESS  (uint8_t)0xB8
+//#define LPS22HB_ADDRESS  (uint8_t)0xB8
 
 /**
 * @brief  Set the LPS22HB driver version.
@@ -732,7 +802,20 @@ typedef struct
 
 #define LPS22HB_CTE_MASK           (uint8_t)0x20
 
-#define LPS22HB_assert_param(expr) ((void)0)
+/**
+* @}
+*/
+
+
+/**
+* @}
+*/
+
+
+/* Exported Functions -------------------------------------------------------------*/
+/** @defgroup LPS22HB_Exported_Functions
+* @{
+*/
 
 LPS22HB_Error_et LPS22HB_ReadReg( void *handle, uint8_t RegAddr, uint16_t NumByteToRead, uint8_t *Data );
 LPS22HB_Error_et LPS22HB_WriteReg( void *handle, uint8_t RegAddr, uint16_t NumByteToWrite, uint8_t *Data );
@@ -751,151 +834,492 @@ LPS22HB_Error_et LPS22HB_WriteReg( void *handle, uint8_t RegAddr, uint16_t NumBy
 */
 #define LPS22HB_HalDeInit  (LPS22HB_Error_et)HAL_DeInit_I2C
 
+
+/**
+* @brief  Get the LPS22HB driver version.
+* @param  None
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_DriverVersion(LPS22HB_DriverVersion_st *Version);
+
+/**
+* @brief  Initialization function for LPS22HB.
+*         This function make a memory boot.
+*         Init the sensor with a standard basic confifuration.
+*         Low Power, ODR 25 Hz, Low Pass Filter disabled; BDU enabled; I2C enabled;
+*         NO FIFO; NO Interrupt Enabled.
+* @param  None.
+* @retval Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Init(void *handle);
+
+/**
+* @brief  DeInit the LPS2Hb driver.
+* @param  None
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
+
 LPS22HB_Error_et LPS22HB_DeInit(void *handle);
+
+
+/**
+* @brief  Read identification code by WHO_AM_I register
+* @param  Buffer to empty by Device identification Value.
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_DeviceID(void *handle, uint8_t* deviceid);
+
+
+/**
+* @brief  Set LPS22HB Low Power or Low Noise Mode Configuration
+* @param  LPS22HB_LowNoise or LPS22HB_LowPower mode
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_PowerMode(void *handle, LPS22HB_PowerMode_et mode);
+
+/**
+* @brief  Get LPS22HB Power Mode
+* @param   Buffer to empty with Mode: Low Noise or Low Current
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_PowerMode(void *handle, LPS22HB_PowerMode_et* mode);
+
+
+/**
+* @brief  Set LPS22HB Output Data Rate
+* @param  Output Data Rate
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_Odr(void *handle, LPS22HB_Odr_et odr);
+
+
+/**
+* @brief  Get LPS22HB Output Data Rate
+* @param  Buffer to empty with Output Data Rate
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_Odr(void *handle, LPS22HB_Odr_et* odr);
+
+/**
+* @brief  Enable/Disale low-pass filter on LPS22HB pressure data
+* @param  state: enable or disable
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_LowPassFilter(void *handle, LPS22HB_State_et state);
+
+
+/**
+* @brief  Set low-pass filter cutoff configuration on LPS22HB pressure data
+* @param Filter Cutoff ODR/9 or ODR/20
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_LowPassFilterCutoff(void *handle, LPS22HB_LPF_Cutoff_et cutoff);
+
+/**
+* @brief  Set Block Data Update mode
+* @param  LPS22HB_BDU_CONTINUOS_UPDATE/ LPS22HB_BDU_NO_UPDATE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_Bdu(void *handle, LPS22HB_Bdu_et bdu);
+
+
+/**
+* @brief  Get Block Data Update mode
+* @param  Buffer to empty whit the bdu mode read from sensor
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_Bdu(void *handle, LPS22HB_Bdu_et* bdu);
+
+/**
+* @brief  Set SPI mode: 3 Wire Interface OR 4 Wire Interface
+* @param  LPS22HB_SPI_4_WIRE/LPS22HB_SPI_3_WIRE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_SpiInterface(void *handle, LPS22HB_SPIMode_et spimode);
+
+/**
+* @brief  Get SPI mode: 3 Wire Interface OR 4 Wire Interface
+* @param  buffer to empty with SPI mode
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_SpiInterface(void *handle, LPS22HB_SPIMode_et* spimode);
+
+/**
+* @brief Software Reset
+* @param  void
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_SwReset(void *handle);
+
+/**
+* @brief Reboot Memory Content.
+* @param  void
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_MemoryBoot(void *handle);
+
+/**
+* @brief Software Reset ann BOOT
+* @param  void
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_SwResetAndMemoryBoot(void *handle);
+
+
+/**
+* @brief  Enable or Disable FIFO
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FifoModeUse(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief  Enable or Disable FIFO Watermark level use. Stop on FIFO Threshold
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FifoWatermarkLevelUse(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief  Enable or Disable the Automatic increment register address during a multiple byte access with a serial interface (I2C or SPI)
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE. Default is LPS22HB_ENABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_AutomaticIncrementRegAddress(void *handle, LPS22HB_State_et status);
+
+
+/**
+* @brief  Set One Shot bit to start a new conversion (ODR mode has to be 000)
+* @param  void
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_StartOneShotMeasurement(void *handle);
+
+/**
+* @brief  Enable/Disable I2C
+* @param  State. Enable (reset bit)/ Disable (set bit)
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_I2C(void *handle, LPS22HB_State_et i2cstate);
+
+
+/*CTRL_REG3 Interrupt Control*/
+/**
+* @brief  Set Interrupt Active on High or Low Level
+* @param  LPS22HB_ActiveHigh/LPS22HB_ActiveLow
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_InterruptActiveLevel(void *handle, LPS22HB_InterruptActiveLevel_et mode);
+
+/**
+* @brief  Set Push-pull/open drain selection on interrupt pads.
+* @param  LPS22HB_PushPull/LPS22HB_OpenDrain
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_InterruptOutputType(void *handle, LPS22HB_OutputType_et output);
+
+/**
+* @brief  Set Data signal on INT1 pad control bits.
+* @param  LPS22HB_DATA,LPS22HB_P_HIGH_LPS22HB_P_LOW,LPS22HB_P_LOW_HIGH
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_InterruptControlConfig(void *handle, LPS22HB_OutputSignalConfig_et config);
+
+
+/**
+* @brief   Enable/Disable Data-ready signal on INT_DRDY pin.
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_DRDYInterrupt(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief   Enable/Disable FIFO overrun interrupt on INT_DRDY pin.
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FIFO_OVR_Interrupt(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief   Enable/Disable FIFO threshold (Watermark) interrupt on INT_DRDY pin.
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FIFO_FTH_Interrupt(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief   Enable/Disable FIFO FULL interrupt on INT_DRDY pin.
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FIFO_FULL_Interrupt(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief   Enable AutoRifP function
+* @param   none
+* @detail When this function is enabled, an internal register is set with the current pressure values
+*         and the content is subtracted from the pressure output value and result is used for the interrupt generation.
+*        the AutoRifP is slf creared.
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_AutoRifP(void *handle);
+
+/**
+* @brief   Disable AutoRifP
+* @param   none
+* @detail  the RESET_ARP bit is used to disable the AUTORIFP function. This bis i is selfdleared
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_ResetAutoRifP(void *handle);
+
+/**
+* @brief  Set AutoZero Function bit
+* @detail When set to ‘1’, the actual pressure output is copied in the REF_P reg (@0x15..0x17)
+* @param  None
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_AutoZeroFunction(void *handle);
+
+/**
+* @brief  Set ResetAutoZero Function bit
+* @details REF_P reg (@0x015..17) set pressure reference to default value RPDS reg (0x18/19).
+* @param  None
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_ResetAutoZeroFunction(void *handle);
+
+
+/**
+* @brief  Enable/ Disable the computing of differential pressure output (Interrupt Generation)
+* @param  LPS22HB_ENABLE,LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_InterruptDifferentialGeneration(void *handle, LPS22HB_State_et diff_en) ;
+
+
+
+/**
+* @brief  Get the DIFF_EN bit value
+* @param  buffer to empty with the read value of DIFF_EN bit
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_InterruptDifferentialGeneration(void *handle, LPS22HB_State_et* diff_en);
+
+
+/**
+* @brief  Latch Interrupt request to the INT_SOURCE register.
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_LatchInterruptRequest(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief  Enable\Disable Interrupt Generation on differential pressure Low event
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_PLE(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief  Enable\Disable Interrupt Generation on differential pressure High event
+* @param  LPS22HB_ENABLE/LPS22HB_DISABLE
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_PHE(void *handle, LPS22HB_State_et status);
+
+/**
+* @brief   Get the Interrupt Generation on differential pressure status event and the Boot Status.
+* @detail  The INT_SOURCE register is cleared by reading it.
+* @param   Status Event Flag: BOOT, PH,PL,IA
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_InterruptDifferentialEventStatus(void *handle,
     LPS22HB_InterruptDiffStatus_st* interruptsource);
+
+
+/**
+* @brief  Get the status of Pressure and Temperature data
+* @param  Data Status Flag:  TempDataAvailable, TempDataOverrun, PressDataAvailable, PressDataOverrun
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_DataStatus(void *handle, LPS22HB_DataStatus_st* datastatus);
+
+
+/**
+* @brief  Get the LPS22HB raw presure value
+* @param  The buffer to empty with the pressure raw value
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_RawPressure(void *handle, int32_t *raw_press);
+
+/**
+* @brief  Get the LPS22HB Pressure value in hPA.
+* @param  The buffer to empty with the pressure value that must be divided by 100 to get the value in hPA
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_Pressure(void *handle, int32_t* Pout);
+
+/**
+* @brief  Read LPS22HB output register, and calculate the raw temperature.
+* @param  The buffer to empty with the temperature raw value
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_RawTemperature(void *handle, int16_t *raw_data);
+
+/**
+* @brief  Read the Temperature value in °C.
+* @param  The buffer to empty with the temperature value that must be divided by 10 to get the value in ['C]
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_Temperature(void *handle, int16_t* Tout);
+
+/**
+* @brief  Get the threshold value used for pressure interrupt generation.
+* @param  The buffer to empty with the temperature value
+* @retval  Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_PressureThreshold(void *handle, int16_t *P_ths);
+
+/**
+* @brief  Set the threshold value used for pressure interrupt generation.
+* @param  The buffer to empty with the temperature value
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_PressureThreshold(void *handle, int16_t P_ths);
+
+/**
+* @brief  Set Fifo Mode.
+* @param  Fifo Mode struct
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FifoMode(void *handle, LPS22HB_FifoMode_et fifomode);
+/**
+* @brief  Get Fifo Mode.
+* @param  Buffer to empty with fifo mode value
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_FifoMode(void *handle, LPS22HB_FifoMode_et* fifomode);
+
+/**
+* @brief  Set Fifo Watermark Level.
+* @param  Watermark level value [0 31]
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FifoWatermarkLevel(void *handle, uint8_t wtmlevel);
+
+/**
+* @brief   Get FIFO Watermark Level
+* @param   buffer to empty with watermak level[0,31] value read from sensor
+* @retval  Status [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_FifoWatermarkLevel(void *handle, uint8_t *wtmlevel);
+
+
+/**
+* @brief  Get Fifo Status.
+* @param  Buffer to empty with fifo status
+* @retval Status [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_FifoStatus(void *handle, LPS22HB_FifoStatus_st* status);
+
+
+/**
+* @brief  Get the reference pressure after soldering for computing differential pressure (hPA)
+* @param buffer to empty with the he pressure value (hPA)
+* @retval  Status [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_PressureOffsetValue(void *handle, int16_t *pressoffset);
+
+/**
+* @brief  Get the Reference Pressure value
+* @detail  It is a 24-bit data added to the sensor output measurement to detect a measured pressure beyond programmed limits.
+* @param  Buffer to empty with reference pressure value
+* @retval  Status [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_ReferencePressure(void *handle, int32_t* RefP);
+
+
+/**
+* @brief  Check if the single measurement has completed.
+* @param  the returned value is set to 1, when the measurement is completed
+* @retval Status [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_IsMeasurementCompleted(void *handle, uint8_t* Is_Measurement_Completed);
+
+
+/**
+* @brief  Get the values of the last single measurement.
+* @param  Pressure and temperature value
+* @retvalStatus [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_Measurement(void *handle, LPS22HB_MeasureTypeDef_st *Measurement_Value);
+
+
+/**
+* @brief   Set Generic Configuration
+* @param   Struct to empty with the chosen values
+* @retval  Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_GenericConfig(void *handle, LPS22HB_ConfigTypeDef_st* pxLPS22HBInit);
+
+/**
+* @brief  Get Generic configuration
+* @param  Struct to empty with configuration values
+* @retval Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_GenericConfig(void *handle, LPS22HB_ConfigTypeDef_st* pxLPS22HBInit);
+
+/**
+* @brief  Set Interrupt configuration
+* @param  Struct holding the configuration values
+* @retval  Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_InterruptConfig(void *handle, LPS22HB_InterruptTypeDef_st* pLPS22HBInt);
+
+/**
+* @brief  LPS22HBGet_InterruptConfig
+* @param  Struct to empty with configuration values
+* @retval S Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_InterruptConfig(void *handle, LPS22HB_InterruptTypeDef_st* pLPS22HBInt);
+
+/**
+* @brief  Set Fifo configuration
+* @param  Struct holding the configuration values
+* @retval  Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_FifoConfig(void *handle, LPS22HB_FIFOTypeDef_st* pLPS22HBFIFO);
+
+/**
+* @brief  Get Fifo configuration
+* @param  Struct to empty with the configuration values
+* @retval Error code[LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Get_FifoConfig(void *handle, LPS22HB_FIFOTypeDef_st* pLPS22HBFIFO);
+
+/**
+* @brief  Clock Tree Confoguration
+* @param  LPS22HB_CTE_NotBalanced, LPS22HB_CTE_ABalanced
+* @retval Error Code [LPS22HB_ERROR, LPS22HB_OK]
+*/
 LPS22HB_Error_et LPS22HB_Set_ClockTreeConfifuration(void *handle, LPS22HB_CTE_et mode);
 
-#define LPS22HB_SENSORS_MAX_NUM  1     /**< LPS22HB max number of instances */
-
-#define LPS22HB_ADDRESS_LOW      0xB8  /**< LPS22HB I2C Address Low */
-#define LPS22HB_ADDRESS_HIGH     0xBA  /**< LPS22HB I2C Address High */
+/**
+* @}
+*/
 
 /**
- * @brief LPS22HB pressure extended features driver internal structure definition
- */
-typedef struct
-{
-  DrvStatusTypeDef ( *FIFO_Get_Empty_Status    ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Full_Status     ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Ovr_Status      ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Fth_Status      ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Stop_On_Fth         ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Usage               ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Get_Num_Of_Samples  ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Data            ) ( DrvContextTypeDef*, float*, float* );
-  DrvStatusTypeDef ( *FIFO_Get_Mode            ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Set_Mode            ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Get_Watermark_Level ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Set_Watermark_Level ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Watermark_Usage     ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Set_Interrupt       ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Reset_Interrupt     ) ( DrvContextTypeDef*, uint8_t );
-} LPS22HB_P_ExtDrv_t;
+* @}
+*/
 
 /**
- * @brief LPS22HB temperature extended features driver internal structure definition
- */
-typedef struct
-{
-  DrvStatusTypeDef ( *FIFO_Get_Empty_Status    ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Full_Status     ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Ovr_Status      ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Fth_Status      ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Stop_On_Fth         ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Usage               ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Get_Num_Of_Samples  ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Get_Data            ) ( DrvContextTypeDef*, float*, float* );
-  DrvStatusTypeDef ( *FIFO_Get_Mode            ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Set_Mode            ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Get_Watermark_Level ) ( DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *FIFO_Set_Watermark_Level ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Watermark_Usage     ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Set_Interrupt       ) ( DrvContextTypeDef*, uint8_t );
-  DrvStatusTypeDef ( *FIFO_Reset_Interrupt     ) ( DrvContextTypeDef*, uint8_t );
-} LPS22HB_T_ExtDrv_t;
+* @}
+*/
 
-/**
- * @brief LPS22HB combo specific data internal structure definition
- */
-typedef struct
-{
-  uint8_t isPressInitialized;
-  uint8_t isTempInitialized;
-  uint8_t isPressEnabled;
-  uint8_t isTempEnabled;
-  float Last_ODR;
-} LPS22HB_Combo_Data_t;
+#ifdef __cplusplus
+}
+#endif
 
-/**
- * @brief LPS22HB pressure specific data internal structure definition
- */
-typedef struct
-{
-  LPS22HB_Combo_Data_t *comboData;       /* Combo data to manage in software enable/disable of the combo sensors */
-} LPS22HB_P_Data_t;
+#endif /* __LPS22HB_DRIVER__H */
 
-/**
- * @brief LPS22HB temperature specific data internal structure definition
- */
-typedef struct
-{
-  LPS22HB_Combo_Data_t *comboData;       /* Combo data to manage in software enable/disable of the combo sensors */
-} LPS22HB_T_Data_t;
-
-extern PRESSURE_Drv_t LPS22HB_P_Drv;
-extern TEMPERATURE_Drv_t LPS22HB_T_Drv;
-extern LPS22HB_Combo_Data_t LPS22HB_Combo_Data[LPS22HB_SENSORS_MAX_NUM];
-extern LPS22HB_P_ExtDrv_t LPS22HB_P_ExtDrv;
-extern LPS22HB_T_ExtDrv_t LPS22HB_T_ExtDrv;
-
-#endif /* INC_SENSOR_LPS22HB_BOARD_H_ */
+/******************* (C) COPYRIGHT 2013 STMicroelectronics *****END OF FILE****/
